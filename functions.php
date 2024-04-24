@@ -135,3 +135,25 @@ function noSubsAdminBar() {
         show_admin_bar(false);
     }
 }
+
+
+// Customize Login Screen
+    add_filter('login_headerurl', 'ourHeaderUrl');
+function ourHeaderUrl() { // 点击登录logo跳转到首页
+    return esc_url(site_url('/'));
+}
+
+// 登录界面加载样式
+add_action('login_enqueue_scripts', 'ourLoginCSS');
+function ourLoginCSS() {
+    wp_enqueue_style('font-awesome', '//maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css');
+    wp_enqueue_style('font-awesome', get_theme_file_uri('/build/index.css'));
+    wp_enqueue_style('university_main_styles', get_theme_file_uri('/build/style-index.css'));
+    wp_enqueue_style('university_extra_styles', get_theme_file_uri('/build/index.css'));
+}
+
+// 修改登录界面标题
+add_filter('login_headertitle', 'ourLoginTitle');
+function ourLoginTitle() {
+    return get_bloginfo('name');
+}
