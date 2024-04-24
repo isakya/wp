@@ -6,6 +6,8 @@ function university_post_types()
 {
     //    Campus post type
     register_post_type('campus', array(
+        'capability_type' => 'campus',
+        'map_meta_cap' => true,
         'show_in_rest' => true,
         'supports' => array('title', 'editor', 'excerpt'),
         'rewrite' => array('slug' => 'campuses'),
@@ -22,6 +24,8 @@ function university_post_types()
     ));
 //    event post type
     register_post_type('event', array(
+        'capability_type' => 'event',
+        'map_meta_cap' => true, // 添加wp默认可设置得权限
         'show_in_rest' => true,
         'supports' => array('title', 'editor', 'excerpt'),
         'rewrite' => array('slug' => 'events'),
@@ -68,6 +72,26 @@ function university_post_types()
         ),
         'menu_icon' => 'dashicons-welcome-learn-more' // 自定义icon
     ));
+
+
+//    Note Post Type
+    register_post_type('note', array(
+        'show_in_rest' => true, // 可以用rest api进行检索 但需要 siteUrl/wp-json/wp/v2/professor url才能获取数据
+        'supports' => array('title', 'editor'),
+        'public' => false, // 私人的话就不显示posts，不可被搜索查询
+        'show_ui' => true, // 但在后台需要设置显示管理界面
+        'labels' => array(
+            'name' => 'Notes', // 自定义名称
+            'add_new_item' => 'Add New Note',
+            'edit_item' => 'Edit Note',
+            'all_items' => 'All Notes',
+            'singular_name' => 'Note'
+        ),
+        'menu_icon' => 'dashicons-welcome-write-blog' // 自定义icon
+    ));
 }
 
+
+
 add_action('init', 'university_post_types');
+
