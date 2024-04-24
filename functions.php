@@ -3,13 +3,15 @@
 require get_theme_file_path('/inc/search-route.php');
 
 // 自己定义返回字段名跟值，方便操作，因为原查询帖子的作者只会显示ID，不会显示名字
-function university_custom_rest() {
+function university_custom_rest()
+{
     register_rest_field('post', 'authorName', array(
-            'get_callback' => function() {
-                return get_the_author();
-            }
+        'get_callback' => function () {
+            return get_the_author();
+        }
     ));
 }
+
 add_action('rest_api_init', 'university_custom_rest');
 
 function pageBanner($args = NULL)
@@ -30,7 +32,7 @@ function pageBanner($args = NULL)
     ?>
     <div class="page-banner">
         <div class="page-banner__bg-image"
-             style="background-image: url(<?php echo $args['photo'];  ?>);"></div>
+             style="background-image: url(<?php echo $args['photo']; ?>);"></div>
         <div class="page-banner__content container container--narrow">
             <h1 class="page-banner__title"><?php echo $args['title']; ?></h1>
             <div class="page-banner__intro">
@@ -52,8 +54,8 @@ function university_files()
     wp_enqueue_style('university_extra_styles', get_theme_file_uri('/build/index.css'));
 
     // 在网页中的CDATA就是这么来的
-    wp_localize_script('main-university-js','universityData',array(
-            'root_url' => get_site_url()
+    wp_localize_script('main-university-js', 'universityData', array(
+        'root_url' => get_site_url()
     ));
 }
 
@@ -107,8 +109,29 @@ add_action('pre_get_posts', 'university_adjust_queries');
 
 
 // 告诉ACF谷歌地图秘钥
-function universityMapKey($api) {
+function universityMapKey($api)
+{
     $api['key'] = 'AIzaSyDin3iGCdZ7RPomFLyb2yqFERhs55dmfTI';
     return $api;
 }
+
 add_filter('acf/fields/google_map/api', 'universityMapKey');
+
+
+// Redirect subscriber accounts out of admin and onto homepage
+add_action('admin_init', 'redirectSubsToFrontend');
+function redirectSubsToFrontend() {
+    $ourCurrentUser = wp_get_current_user();
+    if(count($ourCurrentUser -> roles) == 1 AND $ourCurrentUser -> roles[0] == 'subscriber') {
+        wp_redirect(site_url('/'));
+        exit;
+    }
+}
+
+add_action('wp_loaded', 'noSubsAdminBar');
+function noSubsAdminBar() {
+    $ourCurrentUser = wp_get_current_user();
+    if(count($ourCurrentUser -> roles) == 1 AND $ourCurrentUser -> roles[0] == 'subscriber') {
+        show_admin_bar(false);
+    }
+}
