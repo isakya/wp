@@ -1,19 +1,22 @@
 import $ from 'jquery';
+
 class MyNotes {
     constructor() {
         this.events()
     }
 
     events() {
-        $('.delete-note').on('click', this.deleteNote)
-        $('.edit-note').on('click', this.editNote.bind(this))
-        $('.update-note').on('click', this.updateNote.bind(this))
+        $('#my-notes').on('click', '.delete-note', this.deleteNote) //在父元素上查找子元素并绑定事件，这样新增的item对应的按钮事件也会生效
+        $('#my-notes').on('click','.edit-note', this.editNote.bind(this))
+        $('#my-notes').on('click','.update-note', this.updateNote.bind(this))
+        $('.submit-note').on('click',this.createNote.bind(this))
+
     }
 
     // method will go here
     editNote(e) {
         var thisNote = $(e.target).parents('li');
-        if(thisNote.data('state') == 'editable') {
+        if (thisNote.data('state') == 'editable') {
             // make read only
             this.makeNoteReadOnly(thisNote)
         } else {
@@ -40,9 +43,9 @@ class MyNotes {
         var thisNote = $(e.target).parents('li');
         $.ajax({
             beforeSend: (xhr) => {
-              xhr.setRequestHeader('X-WP-Nonce', universityData.nonce);
+                xhr.setRequestHeader('X-WP-Nonce', universityData.nonce);
             },
-            url:  universityData.root_url + '/wp-json/wp/v2/note/' + thisNote.data('id'),
+            url: universityData.root_url + '/wp-json/wp/v2/note/' + thisNote.data('id'),
             type: 'DELETE',
             success: (response) => {
                 thisNote.slideUp(); // 用于一个元素从可见到隐藏的滑动效果
@@ -66,7 +69,7 @@ class MyNotes {
             beforeSend: (xhr) => {
                 xhr.setRequestHeader('X-WP-Nonce', universityData.nonce);
             },
-            url:  universityData.root_url + '/wp-json/wp/v2/note/' + thisNote.data('id'),
+            url: universityData.root_url + '/wp-json/wp/v2/note/' + thisNote.data('id'),
             type: 'POST',
             data: ourUpdatedPost,
             success: (response) => {
@@ -80,6 +83,42 @@ class MyNotes {
             }
         })
     }
+
+    createNote(e) {
+        var ourNewPost = {
+            'title': $('.new-note-title').val(),
+            'content': $('.new-note-body').val(),
+            'status': 'publish'
+        }
+        $.ajax({
+            beforeSend: (xhr) => {
+                xhr.setRequestHeader('X-WP-Nonce', universityData.nonce);
+            },
+            url: universityData.root_url + '/wp-json/wp/v2/note/',
+            type: 'POST',
+            data: ourNewPost,
+            success: (response) => {
+                $('.new-note-title, .new-note-body').val('')
+                $(`
+                <li data-id="${response.id}">
+
+                    <input readonly class="note-title-field" value="${response.title.raw}">
+                    <span class="edit-note"><i class="fa fa-pencil" aria-hidden="true"></i> Edit</span>
+                    <span class="delete-note"><i class="fa fa-trash-o" aria-hidden="true"></i> Delete</span>
+                    <textarea readonly class="note-body-field">${response.content.raw}</textarea>
+                    <span class="update-note btn btn--blue btn--small"><i class="fa fa-arrow-right" aria-hidden="true"></i> Save</span>
+                </li>
+                `).prependTo('#my-notes').hide().slideDown()
+                console.log('ok')
+                console.log(response)
+            },
+            error: (response) => {
+                console.log('err')
+                console.log(response)
+            }
+        })
+    }
+
 }
 
 export default MyNotes;
