@@ -121,32 +121,36 @@ add_filter('acf/fields/google_map/api', 'universityMapKey');
 
 // Redirect subscriber accounts out of admin and onto homepage
 add_action('admin_init', 'redirectSubsToFrontend');
-function redirectSubsToFrontend() {
+function redirectSubsToFrontend()
+{
     $ourCurrentUser = wp_get_current_user();
-    if(count($ourCurrentUser -> roles) == 1 AND $ourCurrentUser -> roles[0] == 'subscriber') {
+    if (count($ourCurrentUser->roles) == 1 and $ourCurrentUser->roles[0] == 'subscriber') {
         wp_redirect(site_url('/'));
         exit;
     }
 }
 
 add_action('wp_loaded', 'noSubsAdminBar');
-function noSubsAdminBar() {
+function noSubsAdminBar()
+{
     $ourCurrentUser = wp_get_current_user();
-    if(count($ourCurrentUser -> roles) == 1 AND $ourCurrentUser -> roles[0] == 'subscriber') {
+    if (count($ourCurrentUser->roles) == 1 and $ourCurrentUser->roles[0] == 'subscriber') {
         show_admin_bar(false);
     }
 }
 
 
 // Customize Login Screen
-    add_filter('login_headerurl', 'ourHeaderUrl');
-function ourHeaderUrl() { // 点击登录logo跳转到首页
+add_filter('login_headerurl', 'ourHeaderUrl');
+function ourHeaderUrl()
+{ // 点击登录logo跳转到首页
     return esc_url(site_url('/'));
 }
 
 // 登录界面加载样式
 add_action('login_enqueue_scripts', 'ourLoginCSS');
-function ourLoginCSS() {
+function ourLoginCSS()
+{
     wp_enqueue_style('font-awesome', '//maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css');
     wp_enqueue_style('font-awesome', get_theme_file_uri('/build/index.css'));
     wp_enqueue_style('university_main_styles', get_theme_file_uri('/build/style-index.css'));
@@ -155,6 +159,17 @@ function ourLoginCSS() {
 
 // 修改登录界面标题
 add_filter('login_headertitle', 'ourLoginTitle');
-function ourLoginTitle() {
+function ourLoginTitle()
+{
     return get_bloginfo('name');
+}
+
+// Force note posts to be private
+add_filter('wp_insert_post_data', 'makeNotePrivate');
+function makeNotePrivate($data)
+{
+    if ($data['post_type'] == 'note' and $data['post_status'] != 'trash') {
+        $data['post_status'] = 'private';
+    }
+    return $data;
 }
