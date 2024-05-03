@@ -76,6 +76,8 @@ function university_post_types()
 
 //    Note Post Type
     register_post_type('note', array(
+        'capability_type' => 'note', // 自定义文章类型的权限
+        'map_meta_cap' => true, // 权限不直接绑定用户，而是更细粒度的去拆分，再分配给某个角色
         'show_in_rest' => true, // 可以用rest api进行检索 但需要 siteUrl/wp-json/wp/v2/professor url才能获取数据
         'supports' => array('title', 'editor'),
         'public' => false, // 私人的话就不显示posts，不可被搜索查询
@@ -88,6 +90,20 @@ function university_post_types()
             'singular_name' => 'Note'
         ),
         'menu_icon' => 'dashicons-welcome-write-blog' // 自定义icon
+    ));
+    //    Like Post Type
+    register_post_type('like', array(
+        'supports' => array('title'),
+        'public' => false, // 私人的话就不显示posts，不可被搜索查询
+        'show_ui' => true, // 但在后台需要设置显示管理界面
+        'labels' => array(
+            'name' => 'Likes', // 自定义名称
+            'add_new_item' => 'Add New Like',
+            'edit_item' => 'Edit Like',
+            'all_items' => 'All Likes',
+            'singular_name' => 'Like'
+        ),
+        'menu_icon' => 'dashicons-heart' // 自定义icon
     ));
 }
 
