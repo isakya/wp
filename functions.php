@@ -1,5 +1,5 @@
 <?php
-
+require get_theme_file_path('/inc/like-route.php');
 require get_theme_file_path('/inc/search-route.php');
 
 // 自己定义返回字段名跟值，方便操作，因为原查询帖子的作者只会显示ID，不会显示名字
