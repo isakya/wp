@@ -10,6 +10,11 @@ function university_custom_rest()
             return get_the_author();
         }
     ));
+    register_rest_field('note', 'userNoteCount', array( // userNoteCount 是json的一个属性
+        'get_callback' => function () {
+            return count_user_posts(get_current_user_id(), 'note'); // 获取当前用户的note数量
+        }
+    ));
 }
 
 add_action('rest_api_init', 'university_custom_rest');
@@ -165,10 +170,14 @@ function ourLoginTitle()
 }
 
 // Force note posts to be private
-add_filter('wp_insert_post_data', 'makeNotePrivate');
-function makeNotePrivate($data)
+add_filter('wp_insert_post_data', 'makeNotePrivate', 10, 2); // 10 : 过滤器优先级，越大优先级越小;  2 : 接收参数数量为两个，即原始数据和修改数据
+function makeNotePrivate($data, $postarr)
 {
     if($data['post_type'] == 'note') {
+        if(count_user_posts(get_current_user_id(), 'note') > 4 AND !$postarr['ID']) {
+            die('You have reached your note limit.');
+        }
+
         $data['post_content'] = sanitize_textarea_field($data['post_content']);
         $data['post_title'] = sanitize_text_field($data['post_title']);
     }
