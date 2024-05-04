@@ -51,7 +51,7 @@ function createLike($data) {
 
 function deleteLike($data) {
     $likeId = sanitize_text_field($data['like']);
-    if(get_current_user_id() == get_post_field('post_author', $likeId) AND get_post_type($likeId) == 'like') {
+    if(get_current_user_id() == get_post_field('post_author', $likeId) AND get_post_type($likeId) == 'like') { // get_post_field: 获取指定的文章字段，参数1：要获取的字段 参数2：帖子ID
         wp_delete_post($likeId, true); // true: 指跳过进入垃圾箱的步骤，直接删除
         return 'Congrats, like deleted.';
     } else {

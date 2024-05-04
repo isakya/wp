@@ -188,3 +188,10 @@ function makeNotePrivate($data, $postarr)
 }
 
 
+// 用 ALL IN ONE 迁站排除不需要的文件夹
+add_filter('ai1wm_exclude_content_from_export', 'ignoreCertainFiles');
+
+function ignoreCertainFiles($exclude_filters) {
+    $exclude_filters[] = 'themes/fictional-university-theme/node_modules';
+    return $exclude_filters;
+}
