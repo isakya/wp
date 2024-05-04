@@ -11,7 +11,7 @@ class Like {
     // methods
     ourClickDispatcher(e) {
         var currentLikeBox = $(e.target).closest('.like-box') // 从子元素找到父元素
-        if(currentLikeBox.data('exists') == 'yes') {
+        if(currentLikeBox.attr('data-exists') == 'yes') {
             this.deleteLike(currentLikeBox)
         } else {
             this.createLike(currentLikeBox)
@@ -27,6 +27,11 @@ class Like {
             type: 'POST',
             data: {'professorId': currentLikeBox.data('professor')},
             success: (response) => {
+                currentLikeBox.attr('data-exists', 'yes');
+                var likeCount = parseInt(currentLikeBox.find('.like-count').html(), 10)
+                likeCount++;
+                currentLikeBox.find('.like-count').html(likeCount);
+                currentLikeBox.attr('data-like', response)
                 console.log(response);
             },
             error: (response) => {
@@ -37,9 +42,18 @@ class Like {
 
     deleteLike(currentLikeBox) {
         $.ajax({
+            beforeSend: (xhr) => {
+                xhr.setRequestHeader('X-WP-Nonce', universityData.nonce); // WP验证登录用户用的随机字符串
+            },
             url: universityData.root_url + '/wp-json/university/v1/manageLike',
+            data: {'like': currentLikeBox.attr('data-like')},
             type: 'DELETE',
             success: (response) => {
+                currentLikeBox.attr('data-exists', 'no');
+                var likeCount = parseInt(currentLikeBox.find('.like-count').html(), 10)
+                likeCount--;
+                currentLikeBox.find('.like-count').html(likeCount);
+                currentLikeBox.attr('data-like', '')
                 console.log(response);
             },
             error: (response) => {
