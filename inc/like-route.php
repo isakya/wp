@@ -15,16 +15,38 @@ function universityLikeRoutes() {
 }
 
 function createLike($data) {
-    $professor = sanitize_text_field($data['professorId']); // sanitize_text_field 安全函数，防止XSS攻击
+    if(is_user_logged_in()) {
+        $professor = sanitize_text_field($data['professorId']); // sanitize_text_field 安全函数，防止XSS攻击
+        $existQuery = new WP_Query(array(
+            'author' => get_current_user_id(),
+            'post_type' => 'like',
+            'meta_query' => array(
+                array(
+                    'key' => 'liked_professor_id',
+                    'compare' => '=',
+                    'value' => $professor
+                )
+            )
+        ));
+        if($existQuery -> found_posts == 0 AND get_post_type($professor) == 'professor') { // 仅限第一次喜欢，并且当前帖子类型为professor的才生效
+            return wp_insert_post(array( // 如果插入成功，则返回ID
+                'post_type' => 'like',
+                'post_status' => 'publish',
+                'post_title' => '2nd PHP Test',
+                'meta_input' => array(
+                    'liked_professor_id' => $professor
+                )
+            ));
+        } else {
+            die('Invalid professor id');
+        }
 
-    wp_insert_post(array(
-        'post_type' => 'like',
-        'post_status' => 'publish',
-        'post_title' => '2nd PHP Test',
-        'meta_input' => array(
-            'liked_professor_id' => $professor
-        )
-    ));
+
+    } else {
+        die('Only logged in users can create a like.');
+    }
+
+
 }
 
 function deleteLike() {
